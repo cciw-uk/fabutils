@@ -2,8 +2,8 @@ from fabric.connection import Connection
 
 
 def update_upgrade(c: Connection):
-    c.run("DEBIAN_FRONTEND=noninteractive apt update", echo=True)
-    c.run("DEBIAN_FRONTEND=noninteractive apt upgrade", echo=True)
+    c.run("DEBIAN_FRONTEND=noninteractive apt update -y", echo=True)
+    c.run("DEBIAN_FRONTEND=noninteractive apt upgrade -y", echo=True)
 
 
 def install(c: Connection, packages: list[str]):
