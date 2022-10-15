@@ -124,7 +124,7 @@ class PGRestore:
     def execute(self, c: Connection) -> Result:
         with c.cd("/"):
             db = self.db
-            cmd = f"PGPASSWORD={db.password} pg_restore -h localhost -w -O -U {db.user} {' -c ' if self.clean else ''} -d {db.name} {quote(self.filename)}"
+            cmd = f"PGPASSWORD={db.password} pg_restore -h localhost -p {db.port} -w -O -U {db.user} {' -c ' if self.clean else ''} -d {db.name} {quote(self.filename)}"
             return c.run(cmd, echo=True)
 
 
