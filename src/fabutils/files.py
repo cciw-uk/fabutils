@@ -1,16 +1,15 @@
 import io
+import re
 from shlex import quote
+from typing import Union
 
 from fabric.connection import Connection
 from fabric.transfer import Transfer
 from invoke.runners import Result
-from patchwork.files import append, exists
 
 __all__ = [
-    # Re-exported:
     "append",
     "exists",
-    # Ours
     "get_file_as_bytes",
     "put_file_from_bytes",
     "require_directory",
@@ -116,3 +115,81 @@ def get_mode(c: Connection, path: str):
     """
     result: Result = c.run(f"stat -c %a {quote(path)}", hide="both")
     return result.stdout.strip()
+
+
+def exists(c: Connection, path: str):
+    """
+    Return True if given path exists on the current remote host.
+    """
+    result: Result = c.run(f'test -e "$(echo {quote(path)})"', hide="both", warn=True)
+    return result.ok
+
+
+def append(c: Connection, filename: str, text: Union[str, list[str]], partial=False, escape=True):
+    """
+    Append string (or list of strings) ``text`` to ``filename``.
+
+    When a list is given, each string inside is handled independently (but in
+    the order given.)
+
+    If ``text`` is already found in ``filename``, the append is not run, and
+    None is returned immediately. Otherwise, the given text is appended to the
+    end of the given ``filename`` via e.g. ``echo '$text' >> $filename``.
+
+    The test for whether ``text`` already exists defaults to a full line match,
+    e.g. ``^<text>$``, as this seems to be the most sensible approach for the
+    "append lines to a file" use case. You may override this and force partial
+    searching (e.g. ``^<text>``) by specifying ``partial=True``.
+
+    Because ``text`` is single-quoted, single quotes will be transparently
+    backslash-escaped. This can be disabled with ``escape=False``.
+    """
+    # Normalize non-list input to be a list
+    lines: list[str]
+    if isinstance(text, str):
+        lines = [text]
+    else:
+        lines = text
+    for line in lines:
+        regex = "^" + _escape_for_regex(line) + ("" if partial else "$")
+        if line and exists(c, filename) and contains(c, filename, regex, escape=False):
+            continue
+        line = line.replace("'", r"'\\''") if escape else line
+        c.run(f"echo '{line}' >> {quote(filename)}")
+
+
+def contains(c: Connection, filename: str, text: str, exact=False, escape=True):
+    """
+    Return True if ``filename`` contains ``text`` (which may be a regex.)
+
+    By default, this function will consider a partial line match (i.e. where
+    ``text`` only makes up part of the line it's on). Specify ``exact=True`` to
+    change this behavior so that only a line containing exactly ``text``
+    results in a True return value.
+
+    This function leverages ``egrep`` on the remote end (so it may not follow
+    Python regular expression syntax perfectly), and skips the usual outer
+    ``env.shell`` wrapper that most commands execute with.
+
+    If ``escape`` is False, no extra regular expression related escaping is
+    performed (this includes overriding ``exact`` so that no ``^``/``$`` is
+    added.)
+    """
+    if escape:
+        text = _escape_for_regex(text)
+        if exact:
+            text = f"^{text}$"
+    egrep_cmd = f'egrep "{text}" "{quote(filename)}"'
+    return c.run(egrep_cmd, hide=True, warn=True).ok
+
+
+def _escape_for_regex(text):
+    """Escape ``text`` to allow literal matching using egrep"""
+    regex = re.escape(text)
+    # Seems like double escaping is needed for \
+    regex = regex.replace("\\\\", "\\\\\\")
+    # Triple-escaping seems to be required for $ signs
+    regex = regex.replace(r"\$", r"\\\$")
+    # Whereas single quotes should not be escaped
+    regex = regex.replace(r"\'", "'")
+    return regex
