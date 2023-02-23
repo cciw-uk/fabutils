@@ -1,7 +1,8 @@
+from __future__ import annotations
+
 import io
 import re
 from shlex import quote
-from typing import Union
 
 from fabric.connection import Connection
 from fabric.transfer import Transfer
@@ -20,6 +21,14 @@ __all__ = [
     "get_group",
     "get_mode",
 ]
+
+
+def get(c: Connection, remote_filename: str, local_filename: str):
+    Transfer(c).get(local=local_filename, remote=remote_filename)
+
+
+def put(c: Connection, local_filename: str, remote_filename: str):
+    Transfer(c).put(local=local_filename, remote=remote_filename)
 
 
 def get_file_as_bytes(c: Connection, filename: str) -> bytes:
@@ -125,7 +134,7 @@ def exists(c: Connection, path: str):
     return result.ok
 
 
-def append(c: Connection, filename: str, text: Union[str, list[str]], partial=False, escape=True):
+def append(c: Connection, filename: str, text: str | list[str], partial=False, escape=True):
     """
     Append string (or list of strings) ``text`` to ``filename``.
 
