@@ -24,7 +24,7 @@ __all__ = [
 
 
 def get(c: Connection, remote_filename: str, local_filename: str):
-    Transfer(c).get(local=local_filename, remote=remote_filename)
+    return Transfer(c).get(local=local_filename, remote=remote_filename).local
 
 
 def put(c: Connection, local_filename: str, remote_filename: str):

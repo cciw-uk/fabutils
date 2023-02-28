@@ -60,7 +60,7 @@ def db_to_pg_envs(db: Database) -> dict:
     Returns the environment variables that postgres CLI tools like psql
     and pg_dump use, as a dict.
     """
-    return {env_name: getattr(db, attr_name) for attr_name, env_name in PG_ENVIRON_MAP.items()}
+    return {env_name: str(getattr(db, attr_name)) for attr_name, env_name in PG_ENVIRON_MAP.items()}
 
 
 @dataclass
