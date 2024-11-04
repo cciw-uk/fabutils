@@ -1,5 +1,5 @@
-fabutils
-========
+fabutils-cciw
+=============
 
 Small library of reusable utilities for fabfiles, used by:
 
@@ -8,5 +8,3 @@ Small library of reusable utilities for fabfiles, used by:
 
 See comments in src/fabutils/connections.py for some rationale behind
 design/constraints of these utilities.
-
-Intended to be used as git submodule for the time being.
