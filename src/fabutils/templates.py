@@ -37,7 +37,10 @@ def upload_template_and_reload(c: Connection, template: Template, context_data: 
     with open(local_path) as f:
         local_data = f.read()
         local_data %= context_data
-    clean = lambda s: s.replace("\n", "").replace("\r", "").strip()
+
+    def clean(s):
+        return s.replace("\n", "").replace("\r", "").strip()
+
     if clean(remote_data) == clean(local_data):
         return
 

@@ -2,13 +2,31 @@
 name = "fabutils-cciw"
 version = "0.1.0"
 description = "A set of utilties around Fabric, used by CCiW"
-readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
     "fabric>=3.2.2",
     "invoke>=2.2.0",
     "makefun>=1.15.6",
 ]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Intended Audience :: Developers",
+    "Operating System :: OS Independent",
+    "License :: OSI Approved :: MIT License",
+    "Natural Language :: English",
+]
+urls = {Homepage = "https://github.com/cciw-uk/fabutils"}
+authors = [{name = "Luke Plant"}]
+license = {text = "MIT"}
+
+[project.readme]
+file = "README.rst"
+content-type = "text/x-rst"
 
 
 [build-system]
@@ -28,7 +46,17 @@ line-length = 120
 required-version = '24.10.0'
 target-version = ['py310']
 
+[tool.ruff]
+line-length = 120
+target-version = 'py310'
+select = ["E", "F", "I", "UP", "FLY"]
+
 [tool.isort]
 line_length = 120
 profile = "black"
 multi_line_output = 3
+
+[tool.uv]
+dev-dependencies = [
+    "black==24.10.0",
+]

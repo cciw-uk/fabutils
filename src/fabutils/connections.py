@@ -1,5 +1,6 @@
+from collections.abc import Callable
 from contextlib import contextmanager
-from typing import Any, Callable, TypeVar, cast
+from typing import Any, TypeVar, cast
 
 from fabric import task as fabtask
 from fabric.connection import Connection
