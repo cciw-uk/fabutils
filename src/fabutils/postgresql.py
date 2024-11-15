@@ -93,7 +93,12 @@ def create_db_command(db: Database) -> DbCommand:
                 run_as_postgres=True,
             ),
             PsqlCommand(
-                sql=(f"GRANT ALL ON DATABASE {db.name} TO {db.user};" f"ALTER USER {db.user} CREATEDB;"),
+                sql=(
+                    f"GRANT ALL ON DATABASE {db.name} TO {db.user}; "
+                    + f"ALTER USER {db.user} CREATEDB; "
+                    + f"GRANT ALL ON SCHEMA public TO {db.user}; "
+                    + f"ALTER DATABASE {db.name} OWNER TO {db.user}; "
+                ),
                 db=db,
                 run_as_postgres=True,
             ),
